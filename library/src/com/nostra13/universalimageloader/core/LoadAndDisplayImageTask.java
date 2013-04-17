@@ -355,11 +355,15 @@ final class LoadAndDisplayImageTask implements Runnable {
                     os.write(bytes, 0, count);
                     
                     offset += count;
-                    float progress = 0;
-                    if (length > 0) {
-                        progress = offset * 1f / length;
+                    if (!(checkTaskIsNotActual() || checkTaskIsInterrupted())) {
+                        final float progress = length > 0 ? offset * 1f / length : 0;
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                listener.onLoadingProgress(uri, imageView, progress);
+                            }
+                        });
                     }
-                    listener.onLoadingProgress(uri, imageView, progress);
                 }
 			} finally {
 				IoUtils.closeSilently(os);
@@ -370,7 +374,7 @@ final class LoadAndDisplayImageTask implements Runnable {
 	}
 
 	private void fireImageLoadingFailedEvent(final FailType failType, final Throwable failCause) {
-		if (!Thread.interrupted()) {
+		if (!(checkTaskIsNotActual() || checkTaskIsInterrupted())) {
 			handler.post(new Runnable() {
 				@Override
 				public void run() {
