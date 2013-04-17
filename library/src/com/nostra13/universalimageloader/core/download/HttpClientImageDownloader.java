@@ -16,7 +16,6 @@
 package com.nostra13.universalimageloader.core.download;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -25,6 +24,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.entity.BufferedHttpEntity;
 
 import android.content.Context;
+
+import com.nostra13.universalimageloader.core.assist.ImageStream;
 
 /**
  * Implementation of ImageDownloader which uses {@link HttpClient} for image stream retrieving.
@@ -42,11 +43,11 @@ public class HttpClientImageDownloader extends BaseImageDownloader {
 	}
 
 	@Override
-	protected InputStream getStreamFromNetwork(String imageUri, Object extra) throws IOException {
+	protected ImageStream getStreamFromNetwork(String imageUri, Object extra) throws IOException {
 		HttpGet httpRequest = new HttpGet(imageUri);
 		HttpResponse response = httpClient.execute(httpRequest);
 		HttpEntity entity = response.getEntity();
 		BufferedHttpEntity bufHttpEntity = new BufferedHttpEntity(entity);
-		return bufHttpEntity.getContent();
+		return new ImageStream(bufHttpEntity.getContent(), bufHttpEntity.getContentLength());
 	}
 }

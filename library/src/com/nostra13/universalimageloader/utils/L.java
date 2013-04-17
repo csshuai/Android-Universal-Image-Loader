@@ -15,9 +15,9 @@
  *******************************************************************************/
 package com.nostra13.universalimageloader.utils;
 
-import com.nostra13.universalimageloader.core.ImageLoader;
-
 import android.util.Log;
+
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 /**
  * "Less-word" analog of Android {@link Log logger}

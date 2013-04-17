@@ -16,12 +16,12 @@
 package com.nostra13.universalimageloader.core.download;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.assist.ImageStream;
 
 /**
- * Provides retrieving of {@link InputStream} of image by URI.<br />
+ * Provides retrieving of {@link ImageStream} of image by URI.<br />
  * Implementations have to be thread-safe.
  * 
  * @author Sergey Tarasevich (nostra13[at]gmail[dot]com)
@@ -29,16 +29,16 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
  */
 public interface ImageDownloader {
 	/**
-	 * Retrieves {@link InputStream} of image by URI.
+	 * Retrieves {@link ImageStream} of image by URI.
 	 * 
 	 * @param imageUri Image URI
 	 * @param extra Auxiliary object which was passed to {@link DisplayImageOptions.Builder#extraForDownloader(Object)
 	 *            DisplayImageOptions.extraForDownloader(Object)}; can be null
-	 * @return {@link InputStream} of image
+	 * @return {@link ImageStream} of image
 	 * @throws IOException if some I/O error occurs during getting image stream
 	 * @throws UnsupportedOperationException if image URI has unsupported scheme(protocol)
 	 */
-	InputStream getStream(String imageUri, Object extra) throws IOException;
+	ImageStream getStream(String imageUri, Object extra) throws IOException;
 
 	/** Represents supported schemes(protocols) of URI. Provides convenient methods for work with schemes and URIs. */
 	public enum Scheme {

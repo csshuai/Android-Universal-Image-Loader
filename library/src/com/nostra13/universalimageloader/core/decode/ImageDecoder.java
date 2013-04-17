@@ -17,7 +17,6 @@ package com.nostra13.universalimageloader.core.decode;
 
 import java.io.IOException;
 
-
 import android.graphics.Bitmap;
 
 /**

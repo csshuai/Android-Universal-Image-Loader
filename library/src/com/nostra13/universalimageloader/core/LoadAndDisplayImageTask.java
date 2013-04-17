@@ -34,6 +34,7 @@ import com.nostra13.universalimageloader.core.assist.FailReason.FailType;
 import com.nostra13.universalimageloader.core.assist.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.assist.ImageSize;
+import com.nostra13.universalimageloader.core.assist.ImageStream;
 import com.nostra13.universalimageloader.core.assist.ViewScaleType;
 import com.nostra13.universalimageloader.core.decode.ImageDecoder;
 import com.nostra13.universalimageloader.core.decode.ImageDecodingInfo;
@@ -337,16 +338,33 @@ final class LoadAndDisplayImageTask implements Runnable {
 	}
 
 	private void downloadImage(File targetFile) throws IOException {
-		InputStream is = getDownloader().getStream(uri, options.getExtraForDownloader());
+		ImageStream imageStream = getDownloader().getStream(uri, options.getExtraForDownloader());
+		InputStream is = imageStream.getInputStream();
+		long length = imageStream.getLength();
 		try {
 			OutputStream os = new BufferedOutputStream(new FileOutputStream(targetFile), BUFFER_SIZE);
 			try {
-				IoUtils.copyStream(is, os);
+                long offset = 0;
+                byte[] bytes = new byte[BUFFER_SIZE];
+                while (true) {
+                    int count = is.read(bytes, 0, BUFFER_SIZE);
+                    if (count == -1) {
+                        break;
+                    }
+                    os.write(bytes, 0, count);
+                    
+                    offset += count;
+                    float progress = 0;
+                    if (length > 0) {
+                        progress = offset * 1f / length;
+                    }
+                    listener.onLoadingProgress(uri, imageView, progress);
+                }
 			} finally {
 				IoUtils.closeSilently(os);
 			}
 		} finally {
-			IoUtils.closeSilently(is);
+			IoUtils.closeSilently(imageStream);
 		}
 	}
 

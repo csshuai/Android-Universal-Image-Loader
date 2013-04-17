@@ -27,6 +27,7 @@ import android.os.Build;
 
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.assist.ImageSize;
+import com.nostra13.universalimageloader.core.assist.ImageStream;
 import com.nostra13.universalimageloader.core.download.ImageDownloader.Scheme;
 import com.nostra13.universalimageloader.utils.ImageSizeUtils;
 import com.nostra13.universalimageloader.utils.IoUtils;
@@ -67,11 +68,11 @@ public class BaseImageDecoder implements ImageDecoder {
 	 * @throws UnsupportedOperationException if image URI has unsupported scheme(protocol)
 	 */
 	public Bitmap decode(ImageDecodingInfo decodingInfo) throws IOException {
-		InputStream imageStream = getImageStream(decodingInfo);
-		ImageFileInfo imageInfo = defineImageSizeAndRotation(imageStream, decodingInfo.getImageUri());
+		ImageStream imageStream = getImageStream(decodingInfo);
+		ImageFileInfo imageInfo = defineImageSizeAndRotation(imageStream.getInputStream(), decodingInfo.getImageUri());
 		Options decodingOptions = prepareDecodingOptions(imageInfo.imageSize, decodingInfo);
 		imageStream = getImageStream(decodingInfo);
-		Bitmap decodedBitmap = decodeStream(imageStream, decodingOptions);
+		Bitmap decodedBitmap = decodeStream(imageStream.getInputStream(), decodingOptions);
 		if (decodedBitmap == null) {
 			L.e(ERROR_CANT_DECODE_IMAGE, decodingInfo.getImageKey());
 		} else {
@@ -80,7 +81,7 @@ public class BaseImageDecoder implements ImageDecoder {
 		return decodedBitmap;
 	}
 
-	protected InputStream getImageStream(ImageDecodingInfo decodingInfo) throws IOException {
+	protected ImageStream getImageStream(ImageDecodingInfo decodingInfo) throws IOException {
 		return decodingInfo.getDownloader().getStream(decodingInfo.getImageUri(), decodingInfo.getExtraForDownloader());
 	}
 

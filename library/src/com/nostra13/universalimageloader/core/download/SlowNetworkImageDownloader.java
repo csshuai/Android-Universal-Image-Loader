@@ -16,9 +16,9 @@
 package com.nostra13.universalimageloader.core.download;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import com.nostra13.universalimageloader.core.assist.FlushedInputStream;
+import com.nostra13.universalimageloader.core.assist.ImageStream;
 
 /**
  * Decorator. Handles <a href="http://code.google.com/p/android/issues/detail?id=6066">this problem</a> on slow networks
@@ -36,14 +36,14 @@ public class SlowNetworkImageDownloader implements ImageDownloader {
 	}
 
 	@Override
-	public InputStream getStream(String imageUri, Object extra) throws IOException {
-		InputStream imageStream = wrappedDownloader.getStream(imageUri, extra);
+	public ImageStream getStream(String imageUri, Object extra) throws IOException {
+	    ImageStream imageStream = wrappedDownloader.getStream(imageUri, extra);
 		switch (Scheme.ofUri(imageUri)) {
 			case HTTP:
 			case HTTPS:
-				return new FlushedInputStream(imageStream);
+				imageStream.setInputStream(new FlushedInputStream(imageStream.getInputStream()));
 			default:
-				return imageStream;
 		}
+		return imageStream;
 	}
 }
