@@ -302,6 +302,9 @@ public final class DisplayImageOptions {
 		public Builder preProcessor(BitmapProcessor preProcessor, String preKey) {
 		    this.preKey = preKey;
 			this.preProcessor = preProcessor;
+			if (preKey != null && preKey.contains("_")) {
+                throw new IllegalArgumentException("The param preKey cannot contain \"_\".");
+            }
 			return this;
 		}
 
