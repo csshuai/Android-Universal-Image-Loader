@@ -25,6 +25,8 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.widget.ImageView;
 
+import com.nostra13.universalimageloader.core.assist.ImageSize;
+import com.nostra13.universalimageloader.utils.ImageSizeUtils;
 import com.nostra13.universalimageloader.utils.L;
 
 /**
@@ -66,8 +68,9 @@ public class RoundedBitmapDisplayer implements BitmapDisplayer {
 
 		int bw = bitmap.getWidth();
 		int bh = bitmap.getHeight();
-		int vw = imageView.getWidth();
-		int vh = imageView.getHeight();
+		ImageSize size = ImageSizeUtils.defineTargetSizeForView(imageView, 0, 0);
+		int vw = size.getWidth();
+		int vh = size.getHeight();
 		if (vw <= 0) vw = bw;
 		if (vh <= 0) vh = bh;
 
@@ -126,8 +129,8 @@ public class RoundedBitmapDisplayer implements BitmapDisplayer {
 					x = (bw - srcWidth) / 2;
 					y = 0;
 				}
-				width = Math.min(vw, bw);
-				height = Math.min(vh, bh);
+				width = vw;
+                height = vh;
 				srcRect = new Rect(x, y, x + srcWidth, y + srcHeight);
 				destRect = new Rect(0, 0, width, height);
 				break;
