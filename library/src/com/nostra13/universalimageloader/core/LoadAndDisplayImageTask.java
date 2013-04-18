@@ -319,10 +319,18 @@ final class LoadAndDisplayImageTask implements Runnable {
 
 	private boolean downloadSizedImage(File targetFile, int maxWidth, int maxHeight) throws IOException {
 		// Download, decode, compress and save image
-		ImageSize targetImageSize = new ImageSize(maxWidth, maxHeight);
-		DisplayImageOptions specialOptions = new DisplayImageOptions.Builder().cloneFrom(options).imageScaleType(ImageScaleType.IN_SAMPLE_INT).build();
-		ImageDecodingInfo decodingInfo = new ImageDecodingInfo(memoryCacheKey, uri, targetImageSize, ViewScaleType.FIT_INSIDE, getDownloader(), specialOptions);
-		Bitmap bmp = decoder.decode(decodingInfo);
+	    File tempFile = new File(targetFile.getAbsoluteFile() + ".temp");
+	    Bitmap bmp = null;
+	    try {
+	        downloadImage(tempFile);
+	        
+	        ImageSize targetImageSize = new ImageSize(maxWidth, maxHeight);
+	        DisplayImageOptions specialOptions = new DisplayImageOptions.Builder().cloneFrom(options).imageScaleType(ImageScaleType.IN_SAMPLE_INT).build();
+	        ImageDecodingInfo decodingInfo = new ImageDecodingInfo(memoryCacheKey, Scheme.FILE.wrap(tempFile.getAbsolutePath()), targetImageSize, ViewScaleType.FIT_INSIDE, getDownloader(), specialOptions);
+	        bmp = decoder.decode(decodingInfo);
+	    } finally {
+	        tempFile.delete();
+	    }
 		boolean savedSuccessfully = false;
 		if (bmp != null) {
 			OutputStream os = new BufferedOutputStream(new FileOutputStream(targetFile), BUFFER_SIZE);
