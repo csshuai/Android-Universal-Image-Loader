@@ -70,6 +70,7 @@ public final class DisplayImageOptions {
 	private final int delayBeforeLoading;
 	private final Object extraForDownloader;
 	private final BitmapProcessor preProcessor;
+	private final String preKey;
 	private final BitmapProcessor postProcessor;
 	private final BitmapDisplayer displayer;
 	private final Handler handler;
@@ -86,6 +87,7 @@ public final class DisplayImageOptions {
 		delayBeforeLoading = builder.delayBeforeLoading;
 		extraForDownloader = builder.extraForDownloader;
 		preProcessor = builder.preProcessor;
+		preKey = builder.preKey;
 		postProcessor = builder.postProcessor;
 		displayer = builder.displayer;
 		handler = builder.handler;
@@ -158,6 +160,10 @@ public final class DisplayImageOptions {
 	public BitmapProcessor getPreProcessor() {
 		return preProcessor;
 	}
+	
+	public String getPreKey() {
+	    return preKey;
+	}
 
 	public BitmapProcessor getPostProcessor() {
 		return postProcessor;
@@ -188,6 +194,7 @@ public final class DisplayImageOptions {
 		private int delayBeforeLoading = 0;
 		private Object extraForDownloader = null;
 		private BitmapProcessor preProcessor = null;
+		private String preKey = null;
 		private BitmapProcessor postProcessor = null;
 		private BitmapDisplayer displayer = DefaultConfigurationFactory.createBitmapDisplayer();
 		private Handler handler = null;
@@ -289,10 +296,11 @@ public final class DisplayImageOptions {
 
 		/**
 		 * Sets bitmap processor which will be process bitmaps before they will be cached in memory. So memory cache
-		 * will contain bitmap processed by incoming preProcessor.<br />
+		 * will contain bitmap processed by incoming preProcessor, use the special key.<br />
 		 * Image will be pre-processed even if caching in memory is disabled.
 		 */
-		public Builder preProcessor(BitmapProcessor preProcessor) {
+		public Builder preProcessor(BitmapProcessor preProcessor, String preKey) {
+		    this.preKey = preKey;
 			this.preProcessor = preProcessor;
 			return this;
 		}

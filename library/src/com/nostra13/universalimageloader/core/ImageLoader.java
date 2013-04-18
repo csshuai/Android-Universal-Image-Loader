@@ -202,7 +202,7 @@ public class ImageLoader {
 
 		ImageSize targetSize = ImageSizeUtils.defineTargetSizeForView(imageView, configuration.maxImageWidthForMemoryCache,
 				configuration.maxImageHeightForMemoryCache);
-		String memoryCacheKey = MemoryCacheUtil.generateKey(uri, targetSize);
+		String memoryCacheKey = MemoryCacheUtil.generateKey(uri, targetSize, options.getPreKey());
 		engine.prepareDisplayTaskFor(imageView, memoryCacheKey);
 
 		listener.onLoadingStarted(uri, imageView);

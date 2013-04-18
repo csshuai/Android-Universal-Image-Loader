@@ -44,8 +44,21 @@ public final class MemoryCacheUtil {
 	 * ([width]x[height]).
 	 */
 	public static String generateKey(String imageUri, ImageSize targetSize) {
+	    return new StringBuilder(imageUri).append(URI_AND_SIZE_SEPARATOR).append(targetSize.getWidth()).append(WIDTH_AND_HEIGHT_SEPARATOR)
+	            .append(targetSize.getHeight()).toString();
+	}
+	
+	/**
+	 * Generates key for memory cache for incoming image (URI + size + preKey).<br />
+	 * Pattern for cache key - {@value #MEMORY_CACHE_KEY_FORMAT}, where (1) - image URI, (2) - image size
+	 * ([width]x[height]), (3) - preProcessor preKey.
+	 */
+	public static String generateKey(String imageUri, ImageSize targetSize, String preKey) {
+	    if (preKey == null) {
+            return generateKey(imageUri, targetSize);
+        }
 		return new StringBuilder(imageUri).append(URI_AND_SIZE_SEPARATOR).append(targetSize.getWidth()).append(WIDTH_AND_HEIGHT_SEPARATOR)
-				.append(targetSize.getHeight()).toString();
+				.append(targetSize.getHeight()).append(preKey).toString();
 	}
 
 	public static Comparator<String> createFuzzyKeyComparator() {
