@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import android.graphics.Bitmap;
+import android.os.Build;
 
 import com.nostra13.universalimageloader.cache.memory.MemoryCacheAware;
 
@@ -120,7 +121,7 @@ public class LruMemoryCache implements MemoryCacheAware<String, Bitmap> {
 	}
 
 	@Override
-	public Collection<String> keys() {
+	public synchronized Collection<String> keys() {
 		return new HashSet<String>(map.keySet());
 	}
 
@@ -135,8 +136,12 @@ public class LruMemoryCache implements MemoryCacheAware<String, Bitmap> {
 	 * An entry's size must not change while it is in the cache.
 	 */
 	private int sizeOf(String key, Bitmap value) {
-		return value.getRowBytes() * value.getHeight();
-	}
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) {
+            return value.getByteCount();
+        }
+        // Pre HC-MR1
+        return value.getRowBytes() * value.getHeight();
+    }
 
 	@Override
 	public synchronized final String toString() {
