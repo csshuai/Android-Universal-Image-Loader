@@ -70,6 +70,12 @@ public class HomeActivity extends BaseActivity {
 		intent.putExtra(Extra.IMAGES, IMAGES);
 		startActivity(intent);
 	}
+	
+	public void onImageCoverFlowClick(View view) {
+	    Intent intent = new Intent(this, ImageCoverFlowActivity.class);
+	    intent.putExtra(Extra.IMAGES, IMAGES);
+	    startActivity(intent);
+	}
 
 	@Override
 	public void onBackPressed() {

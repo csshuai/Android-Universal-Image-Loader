@@ -19,5 +19,8 @@
     <string name="button_image_gallery">Gallery</string>
     <!-- Content descriptions -->
     <string name="descr_image">Image</string>
+    <string name="title_activity_image_cover_flow">ImageCoverFlowActivity</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
 
 </resources>

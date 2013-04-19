@@ -14,10 +14,20 @@
 
     <TextView
         android:id="@+id/text"
-        android:layout_width="fill_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="left|center_vertical"
         android:layout_marginLeft="20dip"
+        android:layout_weight="1"
+        android:textSize="22sp" />
+
+    <TextView
+        android:id="@+id/progress"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left|center_vertical"
+        android:layout_marginLeft="20dip"
+        android:layout_weight="1"
         android:textSize="22sp" />
 
 </LinearLayout>
