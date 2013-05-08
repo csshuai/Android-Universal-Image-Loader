@@ -39,6 +39,9 @@
         <activity
             android:name=".ImageCoverFlowActivity"
             android:label="@string/title_activity_image_cover_flow" />
+        <activity
+            android:name=".ImageScrollViewActivity"
+            android:label="@string/title_activity_image_scroll_view" />
 
         <!-- Widget -->
         <receiver android:name=".widget.UILWidgetProvider" >

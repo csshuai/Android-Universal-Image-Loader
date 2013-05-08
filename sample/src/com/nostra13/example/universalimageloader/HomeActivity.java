@@ -77,6 +77,12 @@ public class HomeActivity extends BaseActivity {
 	    startActivity(intent);
 	}
 
+	public void onImageScrollViewClick(View view) {
+	    Intent intent = new Intent(this, ImageScrollViewActivity.class);
+	    intent.putExtra(Extra.IMAGES, IMAGES);
+	    startActivity(intent);
+	}
+	
 	@Override
 	public void onBackPressed() {
 		imageLoader.stop();

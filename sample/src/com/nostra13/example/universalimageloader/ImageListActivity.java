@@ -76,7 +76,7 @@ public class ImageListActivity extends AbsListViewBaseActivity {
 
 	@Override
 	public void onBackPressed() {
-		AnimateFirstDisplayListener.displayedImages.clear();
+	    displayedImages.clear();
 		super.onBackPressed();
 	}
 
@@ -89,10 +89,9 @@ public class ImageListActivity extends AbsListViewBaseActivity {
 
 	class ItemAdapter extends BaseAdapter {
 
-		private ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
-
 		private class ViewHolder {
 			public TextView text;
+			public TextView progress;
 			public ImageView image;
 		}
 
@@ -119,34 +118,39 @@ public class ImageListActivity extends AbsListViewBaseActivity {
 				view = getLayoutInflater().inflate(R.layout.item_list_image, parent, false);
 				holder = new ViewHolder();
 				holder.text = (TextView) view.findViewById(R.id.text);
+				holder.progress = (TextView) view.findViewById(R.id.progress);
 				holder.image = (ImageView) view.findViewById(R.id.image);
 				view.setTag(holder);
 			} else {
 				holder = (ViewHolder) view.getTag();
 			}
+			
+			holder.progress.setText("");
 
 			holder.text.setText("Item " + (position + 1));
 
-			imageLoader.displayImage(imageUrls[position], holder.image, options, animateFirstListener);
+			imageLoader.displayImage(imageUrls[position], holder.image, options, new SimpleImageLoadingListener() {
+			    @Override
+		        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+		            if (loadedImage != null) {
+		                ImageView imageView = (ImageView) view;
+		                boolean firstDisplay = !displayedImages.contains(imageUri);
+		                if (firstDisplay) {
+		                    FadeInBitmapDisplayer.animate(imageView, 500);
+		                    displayedImages.add(imageUri);
+		                }
+		            }
+		        }
+
+                @Override
+                public void onLoadingProgress(String imageUri, View view, float progress) {
+                    holder.progress.setText(progress + "");
+                }
+			});
 
 			return view;
 		}
 	}
 
-	private static class AnimateFirstDisplayListener extends SimpleImageLoadingListener {
-
-		static final List<String> displayedImages = Collections.synchronizedList(new LinkedList<String>());
-
-		@Override
-		public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-			if (loadedImage != null) {
-				ImageView imageView = (ImageView) view;
-				boolean firstDisplay = !displayedImages.contains(imageUri);
-				if (firstDisplay) {
-					FadeInBitmapDisplayer.animate(imageView, 500);
-					displayedImages.add(imageUri);
-				}
-			}
-		}
-	}
+	static final List<String> displayedImages = Collections.synchronizedList(new LinkedList<String>());
 }
