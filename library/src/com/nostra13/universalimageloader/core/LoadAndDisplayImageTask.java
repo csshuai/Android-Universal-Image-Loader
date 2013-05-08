@@ -21,6 +21,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -121,7 +124,7 @@ final class LoadAndDisplayImageTask implements Runnable {
 		if (loadFromUriLock.isLocked()) {
 			log(LOG_WAITING_FOR_IMAGE_LOADED);
 		}
-
+		
 		loadFromUriLock.lock();
 		Bitmap bmp;
 		try {
@@ -159,6 +162,10 @@ final class LoadAndDisplayImageTask implements Runnable {
 			}
 		} finally {
 			loadFromUriLock.unlock();
+		    final Map<String, HashSet<ImageLoadingInfo>> downloadPool = engine.getDownloadPool();
+			synchronized (downloadPool) {
+                downloadPool.remove(uri);
+            }
 		}
 
 		if (checkTaskIsNotActual() || checkTaskIsInterrupted()) return;
@@ -218,7 +225,11 @@ final class LoadAndDisplayImageTask implements Runnable {
 			handler.post(new Runnable() {
 				@Override
 				public void run() {
-					listener.onLoadingCancelled(uri, imageView);
+				    String currentCacheKey = engine.getLoadingUriForView(imageView);
+				    boolean imageViewWasReused = !memoryCacheKey.equals(currentCacheKey);
+				    if (imageViewWasReused) {
+				        listener.onLoadingCancelled(uri, imageView);
+                    }
 				}
 			});
 			log(LOG_TASK_CANCELLED);
@@ -350,6 +361,7 @@ final class LoadAndDisplayImageTask implements Runnable {
 		ImageStream imageStream = getDownloader().getStream(uri, options.getExtraForDownloader());
 		InputStream is = imageStream.getInputStream();
 		long length = imageStream.getLength();
+		final Map<String, HashSet<ImageLoadingInfo>> downloadPool = engine.getDownloadPool();
 		try {
 			OutputStream os = new BufferedOutputStream(new FileOutputStream(targetFile), BUFFER_SIZE);
 			try {
@@ -363,14 +375,27 @@ final class LoadAndDisplayImageTask implements Runnable {
                     os.write(bytes, 0, count);
                     
                     offset += count;
-                    if (!(checkTaskIsNotActual() || checkTaskIsInterrupted())) {
-                        final float progress = length > 0 ? offset * 1f / length : 0;
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                listener.onLoadingProgress(uri, imageView, progress);
-                            }
-                        });
+                    final float progress = length > 0 ? offset * 1f / length : 0;
+                    
+                    synchronized (downloadPool) {
+                        HashSet<ImageLoadingInfo> set = downloadPool.get(uri);
+                        Iterator<ImageLoadingInfo> it = set.iterator();
+                        while (it.hasNext()) {
+                            final ImageLoadingInfo info = it.next();
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    ImageView imageView = info.imageView;
+                                    String memoryCacheKey = info.memoryCacheKey;
+                                    String currentCacheKey = engine.getLoadingUriForView(imageView);
+                                    ImageLoadingListener listener = info.listener;
+                                    boolean imageViewWasReused = !memoryCacheKey.equals(currentCacheKey);
+                                    if (!imageViewWasReused) {
+                                        listener.onLoadingProgress(uri, imageView, progress);
+                                    }
+                                }
+                            });
+                        }
                     }
                 }
 			} finally {
@@ -382,15 +407,19 @@ final class LoadAndDisplayImageTask implements Runnable {
 	}
 
 	private void fireImageLoadingFailedEvent(final FailType failType, final Throwable failCause) {
-		if (!(checkTaskIsNotActual() || checkTaskIsInterrupted())) {
+		if (!checkTaskIsInterrupted()) {
 			handler.post(new Runnable() {
 				@Override
-				public void run() {
-					if (options.shouldShowImageOnFail()) {
-						imageView.setImageResource(options.getImageOnFail());
-					}
-					listener.onLoadingFailed(uri, imageView, new FailReason(failType, failCause));
-				}
+                public void run() {
+                    String currentCacheKey = engine.getLoadingUriForView(imageView);
+                    boolean imageViewWasReused = !memoryCacheKey.equals(currentCacheKey);
+                    if (!imageViewWasReused) {
+                        if (options.shouldShowImageOnFail()) {
+                            imageView.setImageResource(options.getImageOnFail());
+                        }
+                        listener.onLoadingFailed(uri, imageView, new FailReason(failType, failCause));
+                    }
+                }
 			});
 		}
 	}

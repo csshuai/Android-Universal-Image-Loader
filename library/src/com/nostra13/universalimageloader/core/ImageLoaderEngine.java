@@ -17,6 +17,7 @@ package com.nostra13.universalimageloader.core;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.Executor;
@@ -48,6 +49,7 @@ class ImageLoaderEngine {
 
 	private final Map<Integer, String> cacheKeysForImageViews = Collections.synchronizedMap(new HashMap<Integer, String>());
 	private final Map<String, ReentrantLock> uriLocks = new WeakHashMap<String, ReentrantLock>();
+	private final Map<String, HashSet<ImageLoadingInfo>> downloadPool = new HashMap<String, HashSet<ImageLoadingInfo>>();
 
 	private final AtomicBoolean paused = new AtomicBoolean(false);
 	private final AtomicBoolean networkDenied = new AtomicBoolean(false);
@@ -171,6 +173,7 @@ class ImageLoaderEngine {
 
 		cacheKeysForImageViews.clear();
 		uriLocks.clear();
+		downloadPool.clear();
 	}
 
 	ReentrantLock getLockForUri(String uri) {
@@ -180,6 +183,10 @@ class ImageLoaderEngine {
 			uriLocks.put(uri, lock);
 		}
 		return lock;
+	}
+	
+	Map<String, HashSet<ImageLoadingInfo>> getDownloadPool() {
+	    return downloadPool;
 	}
 
 	AtomicBoolean getPause() {

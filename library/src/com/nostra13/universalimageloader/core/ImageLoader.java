@@ -15,6 +15,9 @@
  *******************************************************************************/
 package com.nostra13.universalimageloader.core;
 
+import java.util.HashSet;
+import java.util.Map;
+
 import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.view.View;
@@ -230,6 +233,17 @@ public class ImageLoader {
 
 			ImageLoadingInfo imageLoadingInfo = new ImageLoadingInfo(uri, imageView, targetSize, memoryCacheKey, options, listener, engine.getLockForUri(uri));
 			LoadAndDisplayImageTask displayTask = new LoadAndDisplayImageTask(engine, imageLoadingInfo, options.getHandler());
+			
+			Map<String, HashSet<ImageLoadingInfo>> downloadPool = engine.getDownloadPool();
+	        synchronized (downloadPool) {
+	            HashSet<ImageLoadingInfo> set = downloadPool.get(uri);
+	            if (set == null) {
+	                set = new HashSet<ImageLoadingInfo>();
+	                downloadPool.put(uri, set);
+	            }
+	            set.add(imageLoadingInfo);
+	        }
+	        
 			engine.submit(displayTask);
 		}
 	}
